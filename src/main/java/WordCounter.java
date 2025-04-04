@@ -5,10 +5,13 @@ import java.util.Map;
 
 public class WordCounter {
 
-    private List<String> blackList = List.of("когда", "чтобы", "если", "этого", "себя", "который", "этом", "которые", "него");
-    private List<String> blackListOfSymbols= List.of(" ", "", ".", ";", ",", "!", "?");
+    private List<String> blackList = List.of("был", "котор", "мен", "сво", "тольк", "одн", "больш");
+    private List<String> blackListOfSymbols = List.of(" ", "", ".", ";", ",", "!", "?");
 
     public Map<String, Integer> countWord(File file) throws IOException {
+
+        StemmerPorterRU stemmerPorterRU = new StemmerPorterRU();
+
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         Map<String, Integer> allWords = new HashMap<>();
@@ -22,18 +25,16 @@ public class WordCounter {
             }
             String[] words = line.split(" ");
 
+
             for (String word : words) {
 
-                word = word.replace(",", "")
-                        .replace(".", "")
-                        .replace(":", "")
-                        .replace("!", "")
-                        .replace(";", "")
-                        .toLowerCase();
+                word = replaceSymbols(word, stemmerPorterRU);
+
 
                 if (blackList.contains(word) || word.length() < 4) {
                     continue;
                 }
+
 
                 if (allWords.containsKey(word)) {
                     int count = allWords.get(word);
@@ -52,6 +53,19 @@ public class WordCounter {
 
     }
 
+    private String replaceSymbols(String word, StemmerPorterRU stemmerPorterRU) {
+        word = word.replace(",", "")
+                .replace(".", "")
+                .replace(":", "")
+                .replace("!", "")
+                .replace(";", "")
+                .toLowerCase();
+
+
+        word = stemmerPorterRU.stemming(word);
+        return word;
+    }
+
     public Map<String, Integer> countOfLetters(File file) throws IOException {
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -67,7 +81,7 @@ public class WordCounter {
 
             for (String letter : letters) {
 
-                if(blackListOfSymbols.contains(letter)){
+                if (blackListOfSymbols.contains(letter)) {
                     continue;
                 }
 
